@@ -71,11 +71,16 @@ fig.update_layout(
         'x': 0.5,  # Centering the dropdown horizontally
         'xanchor': "center",
         'y': 1.1,  # Move dropdown above the title
-        'yanchor': "top"
+        'yanchor': "top",
+        'font': {
+            'color': 'black'  # Set dropdown text color to white
+        },
+        'bgcolor': 'white'  # Set dropdown background to black for contrast
     }],
     title_x=0.5,  # Center the title
-    margin={"t": 100, "b": 50},  # Adjust the top and bottom margins to create a better gap
+    margin={"t": 100, "b": 50},  # Adjust the top and bottom margins
 )
+
 
 # Display the updated figure
 st.plotly_chart(fig)
