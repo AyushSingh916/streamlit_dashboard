@@ -170,7 +170,9 @@ fig_bar = px.bar(
 )
 
 col1.plotly_chart(fig_bar)
+
 # Scatter Plot: Total Deaths vs. Total Damage (Adjusted) by Disaster Subgroup
+st.title('Disaster Magnitude vs Total Death and Destruction')
 fig_scatter = px.scatter(
     df,
     x="Total Damage, Adjusted ('000 US$)",
