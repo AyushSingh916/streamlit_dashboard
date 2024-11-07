@@ -17,31 +17,45 @@ df = pd.read_csv('./assets/dataset/cleaned_data.csv')
 
 st.write(df.head())
 
-# Streamlit app layout
+# Streamlit layout
 st.title("Total Deaths by Country (Filtered by Disaster Type)")
 
 # Dropdown filter for Disaster Type
-selected_disaster = st.selectbox(
+disaster_type = st.selectbox(
     'Select Disaster Type',
-    options=df['Disaster Type'].unique(),
-    index=0  # Default value is the first disaster type
+    df['Disaster Type'].unique(),
+    index=0  # Default to the first disaster type
 )
 
-# Filter the dataframe based on selected disaster type
-filtered_df = df[df['Disaster Type'] == selected_disaster]
+# Filter the dataframe based on the selected disaster type
+filtered_df = df[df['Disaster Type'] == disaster_type]
 
-# Create scatter geo map with enhanced layout and color scale
-fig = px.scatter_geo(filtered_df, locations="Country",
-                     locationmode="country names",
-                     size="Total Deaths", hover_name="Country",
-                     title=f"Total Deaths by Country for {selected_disaster}",
-                     color="Total Deaths",
-                     color_continuous_scale="Reds",
-                     size_max=50)
+# Create scatter geo map
+fig = px.scatter_geo(
+    filtered_df,
+    lat="Latitude",
+    lon="Longitude",
+    size="Total Deaths",
+    hover_name="Location",
+    hover_data={
+        'Country': True,
+        'Total Deaths': True,
+        'Total Damage (\'000 US$)': True,
+        'Latitude': True,
+        'Longitude': True,
+        'Location': False  # Hide Location in hover_data (handled separately in hovertemplate)
+    },
+    title=f"Total Deaths by Disaster Location for {disaster_type}",
+    color="Total Deaths",
+    color_continuous_scale="Reds",
+    size_max=50
+)
 
 # Update the layout for better aesthetics
 fig.update_layout(
-    title_font_size=22, title_x=0.5, title_y=0.95,  # Center the title
+    title_font_size=22,
+    title_x=0.5,
+    title_y=0.95,  # Center the title
     title_font_color='#2c3e50',
     geo=dict(showland=True, landcolor="lightgray"),
     paper_bgcolor='#f7f7f7',
@@ -50,8 +64,19 @@ fig.update_layout(
     margin={"r": 0, "t": 50, "l": 0, "b": 0}
 )
 
-# Show the plot
-st.plotly_chart(fig, use_container_width=True)
+# Customize hover labels
+fig.update_traces(
+    marker=dict(line=dict(width=0.5, color='DarkSlateGrey')),
+    hovertemplate=(
+        "Country: %{customdata[0]}<br>"
+        "Total Deaths: %{marker.size:,}<br>"
+        "Latitude: %{lat}<br>"
+        "Longitude: %{lon}"
+    )
+)
+
+# Display the map in Streamlit
+st.plotly_chart(fig)
 
 col1,col2 = st.columns(2)
 fig_line = px.line(
