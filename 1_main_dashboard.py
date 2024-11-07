@@ -11,79 +11,44 @@ st.set_page_config(
     layout='wide',
     initial_sidebar_state='collapsed'
 )
-st.title('Main Dashboard')
 
 df = pd.read_csv('./assets/dataset/cleaned_data.csv')
 
-st.write(df.head())
-st.write('# Chloropleth Map based on Disaster')
+# Streamlit app layout
+st.title("Total Deaths by Country (Filtered by Disaster Type)")
 
-def create_map(filtered_df):
-    fig = px.choropleth(
-        filtered_df,
-        locations="Country",
-        locationmode='country names',
-        color="Total Deaths",
-        hover_name="Country",
-        hover_data=['Total Affected', 'Total Damage (\'000 US$)'],
-        color_continuous_scale=px.colors.sequential.OrRd,
-        range_color=(0, 100),
-        title="Global Disaster Impact by Country"
-    )
-
-    fig.update_geos(
-        showcountries=True,
-        countrycolor="Black",
-        showcoastlines=True,
-        coastlinecolor="Black",
-        showland=True,
-        landcolor="lightgray",
-        projection_type="equirectangular"
-    )
-
-    return fig
-
-# Function to update the figure when a different disaster type is selected
-def update_map(disaster_type):
-    filtered_df = df[df['Disaster Type'] == disaster_type]
-    return create_map(filtered_df)
-
-# Create initial map for the default disaster type
-initial_disaster_type = 'Flood'
-fig = update_map(initial_disaster_type)
-
-# Create a dropdown menu to filter by disaster type
-disaster_types = df['Disaster Type'].unique()
-
-# Adding dropdown filter for Disaster Type
-fig.update_layout(
-    updatemenus=[{
-        'buttons': [
-            {
-                'label': disaster_type,
-                'method': 'restyle',
-                'args': [{'z': [df[df['Disaster Type'] == disaster_type]['Total Deaths']]},
-                         {'title': f"Global {disaster_type} Disaster Impact"}]
-            } for disaster_type in disaster_types
-        ],
-        'direction': 'down',
-        'showactive': True,
-        'x': 0.5,  # Centering the dropdown horizontally
-        'xanchor': "center",
-        'y': 1.1,  # Move dropdown above the title
-        'yanchor': "top",
-        'font': {
-            'color': 'black'  # Set dropdown text color to white
-        },
-        'bgcolor': 'white'  # Set dropdown background to black for contrast
-    }],
-    title_x=0.5,  # Center the title
-    margin={"t": 100, "b": 50},  # Adjust the top and bottom margins
+# Dropdown filter for Disaster Type
+selected_disaster = st.selectbox(
+    'Select Disaster Type',
+    options=df['Disaster Type'].unique(),
+    index=0  # Default value is the first disaster type
 )
 
+# Filter the dataframe based on selected disaster type
+filtered_df = df[df['Disaster Type'] == selected_disaster]
 
-# Display the updated figure
-st.plotly_chart(fig)
+# Create scatter geo map with enhanced layout and color scale
+fig = px.scatter_geo(filtered_df, locations="Country",
+                     locationmode="country names",
+                     size="Total Deaths", hover_name="Country",
+                     title=f"Total Deaths by Country for {selected_disaster}",
+                     color="Total Deaths",
+                     color_continuous_scale="Reds",
+                     size_max=50)
+
+# Update the layout for better aesthetics
+fig.update_layout(
+    title_font_size=22, title_x=0.5, title_y=0.95,  # Center the title
+    title_font_color='#2c3e50',
+    geo=dict(showland=True, landcolor="lightgray"),
+    paper_bgcolor='#f7f7f7',
+    plot_bgcolor='#f7f7f7',
+    font=dict(color='#2c3e50', size=14),
+    margin={"r": 0, "t": 50, "l": 0, "b": 0}
+)
+
+# Show the plot
+st.plotly_chart(fig, use_container_width=True)
 
 col1,col2 = st.columns(2)
 fig_line = px.line(
