@@ -190,7 +190,7 @@ fig_scatter = px.scatter(
 
 # Improve layout
 fig_scatter.update_layout(
-    xaxis_title="Total Damage, Adjusted ('US$)",
+    xaxis_title="Total Damage, Adjusted (US$)",
     yaxis_title="Total Deaths",
     height=600,
     legend_title="Disaster Subgroup"
