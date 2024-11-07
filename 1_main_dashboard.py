@@ -11,8 +11,11 @@ st.set_page_config(
     layout='wide',
     initial_sidebar_state='collapsed'
 )
+st.title('Data Preview')
 
 df = pd.read_csv('./assets/dataset/cleaned_data.csv')
+
+st.write(df.head())
 
 # Streamlit app layout
 st.title("Total Deaths by Country (Filtered by Disaster Type)")
